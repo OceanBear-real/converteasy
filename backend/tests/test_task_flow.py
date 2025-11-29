@@ -31,11 +31,11 @@ def patch_conversion(monkeypatch):
 
 
 def test_upload_and_task_status_document(client: TestClient):
-    file_content = BytesIO(b"dummy content")
-    files = {"file": ("sample.docx", file_content, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
-    data = {"category": "document", "target": "pdf"}
-
-    resp = client.post("/convert/upload", files=files, data=data)
+    sample_file = Path(__file__).parent / "samples" / "sample.txt"
+    with open(sample_file, "rb") as f:
+        files = {"file": ("sample.txt", f, "text/plain")}
+        data = {"category": "document", "target": "pdf"}
+        resp = client.post("/convert/upload", files=files, data=data)
     assert resp.status_code == 200
     task_id = resp.json()["taskId"]
     assert task_id
