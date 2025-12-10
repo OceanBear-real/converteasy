@@ -86,20 +86,32 @@
   </view>
 </view>
 
-<!-- 底部弹出播放面板（ActionSheet 风，50% 高度） -->
 <view wx:if="{{showPreviewModal}}" class="preview-overlay" bindtap="onOverlayTap">
-  <view class="preview-sheet" catchtouchmove>
+  <view class="preview-sheet" catchtap="stopProp">
     <view class="sheet-header">
       <view class="sheet-title">{{previewName}}</view>
-      <button class="close-btn" bindtap="closePreview">×</button>
+      <view class="close-btn" bindtap="closePreview">×</view>
     </view>
+    
     <view class="sheet-body">
-      <view class="audio-wrap">
-        <!-- audio 组件：controls 提供内置 UI，不会自动播放 -->
-        <audio id="previewAudio" src="{{previewSrc}}" controls></audio>
+      <view class="custom-player">
+        <view class="play-btn" bindtap="togglePlay">
+          {{isPlaying ? '⏸' : '▶️'}}
+        </view>
+        <view class="progress-info">
+          <text>{{currentTimeStr}}</text>
+          <slider class="audio-slider" 
+                  value="{{currentProgress}}" 
+                  bindchange="seekAudio" 
+                  bindchanging="sliderChanging"
+                  block-size="12" 
+                  activeColor="#667eea"/>
+          <text>{{durationStr}}</text>
+        </view>
       </view>
+      
       <view class="sheet-info">
-        <view class="muted">提示：手动点击播放，拖动进度条以跳转。</view>
+        <view class="muted">点击按钮播放/暂停</view>
       </view>
     </view>
   </view>

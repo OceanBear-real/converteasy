@@ -65,15 +65,15 @@
   background: #f8f9fa;
   border-radius: 12rpx;
   margin-bottom: 16rpx;
-}
-
-.file-icon {
-  font-size: 48rpx;
-  margin-right: 24rpx;
+  /* 关键：确保内容溢出时布局稳定 */
+  justify-content: space-between; 
 }
 
 .file-info {
   flex: 1;
+  /* 关键：允许 flex 子项收缩到 0，防止长文本撑开容器 */
+  min-width: 0; 
+  margin-right: 20rpx; /* 增加与按钮组的间距 */
 }
 
 .file-name {
@@ -81,14 +81,15 @@
   font-weight: 500;
   color: #333;
   margin-bottom: 8rpx;
-}
-
-.file-size {
-  font-size: 24rpx;
-  color: #666;
+  /* 关键：单行截断 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .file-actions {
+  /* 关键：防止按钮组被压缩 */
+  flex-shrink: 0; 
   text-align: right;
 }
 
@@ -117,12 +118,16 @@
 
 .action-row {
   display: flex;
-  gap: 8rpx;
+  gap: 12rpx;
+  justify-content: flex-end; /* 靠右对齐 */
 }
 
 .action-row button {
   font-size: 22rpx;
   padding: 8rpx 16rpx;
+  margin: 0 !important; /* 清除默认 margin */
+  line-height: 1.5;
+  white-space: nowrap; /* 按钮文字不换行 */
 }
 
 /* 进度条样式 */

@@ -259,3 +259,72 @@
   background: #5a6268;
   transform: scale(0.98);
 }
+
+.custom-player {
+  display: flex;
+  align-items: center;
+  background: #f1f3f5;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.play-btn {
+  width: 80rpx;
+  height: 80rpx;
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.progress-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.audio-slider {
+  flex: 1;
+}
+
+.preview-sheet {
+  /* 确保弹窗在底部或居中，样式优化 */
+  background: white;
+  width: 90%;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  position: relative;
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.sheet-title {
+  font-weight: bold;
+  font-size: 32rpx;
+  flex: 1;
+  padding-right: 20rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.close-btn {
+  font-size: 40rpx;
+  color: #999;
+  padding: 10rpx;
+  line-height: 1;
+}
