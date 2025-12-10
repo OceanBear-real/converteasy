@@ -5,30 +5,30 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - "miniprogram/**"
+      - "miniprogram/utils/**"
+      - "miniprogram/__tests__/**"
+      - "miniprogram/package.json"
       - ".github/workflows/frontend-tests.yml"
   pull_request:
     branches: [main, develop]
     paths:
-      - "miniprogram/**"
+      - "miniprogram/utils/**"
+      - "miniprogram/__tests__/**"
+      - "miniprogram/package.json"
       - ".github/workflows/frontend-tests.yml"
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: ["18", "20"]
-
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 设置 Node.js ${{ matrix.node-version }}
+      - name: 设置 Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
           cache-dependency-path: miniprogram/package-lock.json
 
@@ -44,7 +44,6 @@ jobs:
 
       - name: 上传覆盖率报告
         uses: codecov/codecov-action@v4
-        if: matrix.node-version == '20'
         with:
           files: miniprogram/coverage/lcov.info
           flags: frontend
@@ -53,8 +52,8 @@ jobs:
 
       - name: 上传测试报告
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
-          name: frontend-test-report-node${{ matrix.node-version }}
+          name: frontend-test-report
           path: miniprogram/coverage/
-          retention-days: 7
+          retention-days: 3
