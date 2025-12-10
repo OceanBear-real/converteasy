@@ -36,7 +36,7 @@ jobs:
 
       - name: 检查 Python 代码风格 (Flake8)
         run: |
-          flake8 backend/ --max-line-length=100 --extend-ignore=E203,E501,W503 --exclude=__pycache__,*.pyc
+          flake8 backend/ --max-line-length=100 --extend-ignore=E203,E501,W503 --exclude=__pycache__,*.pyc,.git,venv
 
       - name: 安装前端依赖
         run: |
@@ -46,7 +46,7 @@ jobs:
       - name: 检查前端代码 (ESLint)
         run: |
           cd miniprogram
-          npx eslint utils/ --no-error-on-unmatched-pattern || true
+          npx eslint "**/*.js" --ignore-pattern "types/" --ignore-pattern "miniprogram_npm/" --no-error-on-unmatched-pattern || true
 
   pre-commit:
     runs-on: ubuntu-latest

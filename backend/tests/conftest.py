@@ -55,6 +55,5 @@ def setup_dirs(monkeypatch):
 
 @pytest.fixture()
 def client():
-    global app
     assert app is not None, "FastAPI app not initialized"
     return TestClient(app)
