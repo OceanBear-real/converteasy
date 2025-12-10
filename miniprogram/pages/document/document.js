@@ -1,10 +1,10 @@
 /**
  * 文档转换页面
- * 重构版本 - 使用模块化工具函数
+ * 重构版本 - 统一交互逻辑
  */
 
-const { formatSize, getExt, showToast } = require('../../utils/common');
-const { previewDocument, downloadAndSaveFile, shareRemoteFile, chooseMessageFile } = require('../../utils/file');
+const { formatSize, getExt, showLoading, hideLoading, showToast } = require('../../utils/common');
+const { downloadFile: downloadFileUtil, chooseMessageFile } = require('../../utils/file'); // 移除不需要的引用
 const {
   normalizeFileUrl,
   createDocumentConvertTask,
@@ -59,10 +59,9 @@ Page({
     try {
       await healthCheck();
       console.log('✅ 服务连接成功');
-      showToast('服务连接正常', 'success');
     } catch (err) {
       console.error('❌ 服务连接失败:', err);
-      showToast('服务连接失败', 'none');
+      // 静默失败，不打扰用户，但在转换时会再次检查
     }
   },
 
@@ -70,16 +69,11 @@ Page({
   async loadFormats() {
     try {
       const result = await loadSupportedFormats('document');
-      console.log('格式加载响应:', result);
-
       if (result?.document?.supportedConversions) {
         this.setData({ conversionMap: result.document.supportedConversions });
-        console.log('使用服务器支持的格式');
-      } else {
-        console.warn('服务器返回格式数据异常，使用默认配置');
       }
     } catch (error) {
-      console.warn("加载支持的格式失败，使用默认配置:", error);
+      console.warn("加载支持的格式失败，使用默认配置");
     }
   },
 
@@ -106,7 +100,8 @@ Page({
     this.setData({ targetIndex: index });
   },
 
-  // 打开文件选择
+  // ========== 文件选择 (统一逻辑) ==========
+
   chooseFileAction() {
     if (this.data.sourceIndex === -1) {
       showToast('请先选择源文件格式', 'none');
@@ -116,30 +111,23 @@ Page({
     const sourceFormat = this.data.sourceFormats[this.data.sourceIndex];
     const allowedExt = this._getAllowedExtensions(sourceFormat);
 
-    console.log('选择的源格式:', sourceFormat, '允许的扩展名:', allowedExt);
-
-    wx.showActionSheet({
-      itemList: ["从微信文件选择", "从文件管理器选择"],
-      success: (res) => {
-        this.chooseFile(allowedExt);
-      }
-    });
+    // 【修改点】直接调用微信文件选择，不再弹出 ActionSheet
+    // 小程序无法直接访问手机文件管理器（除了媒体文件），
+    // 标准做法是引导用户选择"聊天文件"（文件传输助手）。
+    this.chooseFile(allowedExt);
   },
 
-  // 微信文件选择
   async chooseFile(allowedExt) {
-    console.log('微信文件选择器 - 允许的扩展名:', allowedExt);
     try {
       const tempFiles = await chooseMessageFile(allowedExt, 9);
-      console.log('选择的文件:', tempFiles);
       this._processSelectedFiles(tempFiles);
     } catch (err) {
-      console.error('文件选择失败:', err);
-      showToast('文件选择失败', 'none');
+      if (err.errMsg && !err.errMsg.includes('cancel')) {
+        showToast('文件选择失败', 'none');
+      }
     }
   },
 
-  // 处理已选文件
   _processSelectedFiles(tempFiles) {
     const newFiles = [];
     let skipped = 0;
@@ -152,7 +140,6 @@ Page({
       // 严格验证：文件扩展名必须匹配选择的源格式
       if (!extWithDot || !allowedExt.includes(extWithDot)) {
         skipped++;
-        console.warn(`文件格式不匹配: 选择的是${sourceFormat}格式，但文件是${extWithDot}格式`, file.name);
         continue;
       }
 
@@ -175,12 +162,12 @@ Page({
     }
   },
 
-  // 获取允许的扩展名
   _getAllowedExtensions(sourceFormat) {
     return DOCUMENT_ALLOWED_EXTENSIONS[sourceFormat] || [];
   },
 
-  // 开始转换
+  // ========== 转换逻辑 ==========
+
   async startConvert() {
     if (!this.data.fileList.length) return;
     if (this.data.sourceIndex === -1 || this.data.targetIndex === -1) {
@@ -227,7 +214,6 @@ Page({
     showToast("批量转换完成", 'success');
   },
 
-  // 轮询任务
   async _pollTask(index, taskId) {
     const result = await pollTaskUntilComplete(
       taskId,
@@ -249,75 +235,107 @@ Page({
     this.setData({ fileList: next });
   },
 
-  // 更新文件状态
   _updateFileStatus(index, status) {
     const next = [...this.data.fileList];
     next[index] = { ...next[index], status };
     this.setData({ fileList: next });
   },
 
-  // 更新文件任务 ID
   _updateFileTaskId(index, taskId) {
     const next = [...this.data.fileList];
     next[index] = { ...next[index], taskId };
     this.setData({ fileList: next });
   },
 
-  // 预览文件
+  // ========== 文件操作 (下载/预览/分享) ==========
+
+  // 预览文件：使用微信原生 openDocument
   async previewFile(e) {
     const index = Number(e.currentTarget.dataset.index);
     const item = this.data.fileList[index];
-    if (!item?.downloadUrl) {
-      showToast("文件尚未转换完成", 'none');
-      return;
-    }
+    if (!item?.downloadUrl) return;
 
-    const fileUrl = normalizeFileUrl(item.downloadUrl);
-    console.log('预览文件 URL (normalized):', fileUrl);
-
+    showLoading("加载中...");
     try {
-      await previewDocument(fileUrl, item.name);
+      const fileUrl = normalizeFileUrl(item.downloadUrl);
+      const tempPath = await downloadFileUtil(fileUrl);
+      hideLoading();
+
+      wx.openDocument({
+        filePath: tempPath,
+        showMenu: true,
+        success: () => console.log('预览成功'),
+        fail: (err) => {
+          showToast('无法预览该格式，请尝试下载', 'none');
+        }
+      });
     } catch (err) {
-      console.error('预览失败:', err);
+      hideLoading();
+      showToast('预览加载失败', 'none');
     }
   },
 
-  // 下载文件
-  async downloadFile(e) {
+  // 【修改点】下载文件：改为复制链接引导
+  downloadFile(e) {
     const index = Number(e.currentTarget.dataset.index);
     const item = this.data.fileList[index];
-    if (!item?.downloadUrl) {
-      showToast("文件尚未转换完成", 'none');
-      return;
-    }
+    if (!item?.downloadUrl) return;
 
     const fileUrl = normalizeFileUrl(item.downloadUrl);
-    console.log('下载文件 URL (normalized):', fileUrl);
 
-    try {
-      await downloadAndSaveFile(fileUrl, item.name);
-    } catch (err) {
-      console.error('下载失败:', err);
-    }
+    wx.showModal({
+      title: '下载提示',
+      content: '请复制链接后在浏览器中打开下载文件。',
+      confirmText: '复制链接',
+      success: (res) => {
+        if (res.confirm) {
+          wx.setClipboardData({
+            data: fileUrl,
+            success: () => showToast('链接已复制')
+          });
+        }
+      }
+    });
   },
 
-  // 分享文件
+  // 【修改点】分享文件：使用 shareFileMessage
   async shareFile(e) {
     const index = Number(e.currentTarget.dataset.index);
     const item = this.data.fileList[index];
-    if (!item?.downloadUrl) {
-      showToast("文件尚未转换完成", 'none');
-      return;
-    }
+    if (!item?.downloadUrl) return;
 
-    const fileUrl = normalizeFileUrl(item.downloadUrl);
-    console.log('分享文件 URL (normalized):', fileUrl);
+    showLoading("准备分享...");
 
     try {
-      await shareRemoteFile(fileUrl);
+      const fileUrl = normalizeFileUrl(item.downloadUrl);
+      const tempPath = await downloadFileUtil(fileUrl);
+      hideLoading();
+
+      if (wx.canIUse('shareFileMessage')) {
+        wx.shareFileMessage({
+          filePath: tempPath,
+          fileName: item.name, // 保持原始文件名
+          success: () => console.log('分享成功'),
+          fail: (err) => {
+            if (err.errMsg && !err.errMsg.includes('cancel')) {
+              this._copyLinkFallback(fileUrl);
+            }
+          }
+        });
+      } else {
+        this._copyLinkFallback(fileUrl);
+      }
     } catch (err) {
-      console.error('分享失败:', err);
+      hideLoading();
+      showToast('分享准备失败', 'none');
     }
+  },
+
+  _copyLinkFallback(url) {
+    wx.setClipboardData({
+      data: url,
+      success: () => showToast("已复制文件链接"),
+    });
   },
 
   // 删除文件
@@ -328,33 +346,21 @@ Page({
     this.setData({ fileList: next });
   },
 
-  // 获取文件图标（供模板调用）
+  // 模板工具函数
   getFileIcon(filename) {
     const ext = getExt(filename).toLowerCase();
     return getFileIconFromFormat(ext);
   },
 
-  // 检查是否支持预览
-  isPreviewSupported(filename) {
-    const ext = getExt(filename).toLowerCase();
-    const previewableExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
-    return previewableExts.includes(ext);
-  },
-
-  // 检查目标文件是否支持预览
   isTargetPreviewSupported(fileItem) {
-    if (!fileItem.downloadUrl) return false;
-    const targetExt = getExt(fileItem.downloadUrl).toLowerCase();
-    const previewableExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
-    return previewableExts.includes(targetExt);
+    // 简单判断，只要有 URL 就认为可以尝试预览或下载
+    return !!fileItem.downloadUrl;
   },
 
-  // 提取扩展名（供模板调用）
   _getExt(name) {
     return getExt(name);
   },
 
-  // 格式化文件大小（供模板调用）
   _formatSize(bytes) {
     return formatSize(bytes);
   }
