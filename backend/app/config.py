@@ -63,6 +63,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_POINTS: int = 120
     RATE_LIMIT_DURATION: int = 60  # 秒
 
+    # Redis 配置（多实例/Serverless 环境必需）
+    # 微信云托管 Redis 内网地址格式: redis://:password@host:port/db
+    REDIS_URL: str = os.getenv("REDIS_URL", "")
+
     # 音频质量设置
     AUDIO_QUALITY: Dict[str, str] = {
         "mp3": "-b:a 192k -ac 2",
