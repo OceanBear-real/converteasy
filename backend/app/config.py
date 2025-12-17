@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     CONVERSION_TIMEOUT: int = 300  # 秒（增加到5分钟以支持大文件）
     CLEANUP_INTERVAL: int = 3600  # 秒（1小时）
     FILE_EXPIRE_TIME: int = 24 * 60 * 60  # 秒（24小时）
-    
+
     # PDF转换配置
     PDF_LARGE_FILE_THRESHOLD_MB: int = 20  # 大文件阈值
     PDF_STREAM_PROCESSING: bool = True  # 启用流式处理

@@ -3,13 +3,11 @@ import argparse
 import sys
 import os
 import traceback
-import io
-from pdfminer.high_level import extract_text, extract_pages
-from pdfminer.layout import LTTextContainer, LTChar, LTFigure, LTImage
-from docx import Document
-from docx.shared import Pt, Inches, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 import time
+from pdfminer.high_level import extract_text, extract_pages
+from pdfminer.layout import LTTextContainer
+from docx import Document
+from docx.shared import Pt
 
 
 def pdf_to_doc_pdfminer(pdf_path, doc_path):
@@ -17,40 +15,40 @@ def pdf_to_doc_pdfminer(pdf_path, doc_path):
     try:
         print(f"[INFO] 开始转换: {pdf_path} -> {doc_path}")
         start_time = time.time()
-        
+
         # 获取文件大小
         file_size_mb = os.path.getsize(pdf_path) / (1024 * 1024)
         print(f"[INFO] 文件大小: {file_size_mb:.2f} MB")
-        
+
         # 创建 Word 文档
         doc = Document()
         total_paragraphs = 0
         total_pages = 0
-        
+
         # 使用流式处理，避免一次性加载整个文件
         print("[INFO] 使用流式处理模式...")
-        
+
         try:
             # 逐页处理PDF，减少内存占用
             for page_num, page_layout in enumerate(extract_pages(pdf_path), 1):
                 total_pages += 1
-                
+
                 # 每10页输出一次进度
                 if page_num % 10 == 0:
                     elapsed = time.time() - start_time
                     print(f"[PROGRESS] 已处理 {page_num} 页 (耗时: {elapsed:.1f}秒)")
-                
+
                 page_text = ""
-                
+
                 # 提取页面文本
                 for element in page_layout:
                     if isinstance(element, LTTextContainer):
                         page_text += element.get_text()
-                
+
                 if page_text.strip():
                     # 按段落分割
                     paragraphs = page_text.split("\n\n")
-                    
+
                     for para in paragraphs:
                         para = para.strip()
                         if para and len(para) > 2:  # 过滤太短的内容
@@ -73,17 +71,18 @@ def pdf_to_doc_pdfminer(pdf_path, doc_path):
                                     p.runs[0].font.size = Pt(14)
                                     p.paragraph_format.space_after = Pt(12)
                                 total_paragraphs += 1
-                
+
                 # 添加页面分隔（每5页一次，避免文档过长）
                 if page_num % 5 == 0 and page_num < total_pages:
                     doc.add_paragraph("_" * 50)
-                
+
                 # 大文件处理：每处理50页释放一些资源
                 if file_size_mb > 20 and page_num % 50 == 0:
                     print(f"[INFO] 释放内存（已处理 {page_num} 页）")
                     import gc
+
                     gc.collect()
-        
+
         except Exception as e:
             print(f"[WARNING] 流式处理失败，尝试简单模式: {str(e)}")
             # 回退到简单模式
@@ -95,7 +94,7 @@ def pdf_to_doc_pdfminer(pdf_path, doc_path):
                     if para and len(para) > 2:
                         doc.add_paragraph(para)
                         total_paragraphs += 1
-        
+
         # 如果没有提取到内容
         if total_paragraphs == 0:
             doc.add_paragraph("此 PDF 文件没有可提取的文本内容")
@@ -105,7 +104,7 @@ def pdf_to_doc_pdfminer(pdf_path, doc_path):
             doc.add_paragraph("2. PDF 使用了特殊编码")
             doc.add_paragraph("3. PDF 文件损坏")
             print("[WARNING] 未提取到文本内容")
-        
+
         # 保存文档
         doc.save(doc_path)
         elapsed = time.time() - start_time
@@ -172,7 +171,7 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
 
         print(f"[INFO] 使用 PyMuPDF 转换: {pdf_path} -> {doc_path}")
         start_time = time.time()
-        
+
         file_size_mb = os.path.getsize(pdf_path) / (1024 * 1024)
         print(f"[INFO] 文件大小: {file_size_mb:.2f} MB")
 
@@ -185,13 +184,13 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
         pdf_document = fitz.open(pdf_path)
         total_pages = len(pdf_document)
         print(f"[INFO] PDF总页数: {total_pages}")
-        
+
         # 检测是否为PPT来源PDF（通常页面尺寸比例接近16:9或4:3）
         first_page = pdf_document[0]
         page_rect = first_page.rect
         aspect_ratio = page_rect.width / page_rect.height
         is_ppt_like = (1.7 < aspect_ratio < 1.8) or (1.3 < aspect_ratio < 1.4)
-        
+
         if is_ppt_like:
             print(f"[INFO] 检测到PPT风格PDF (宽高比: {aspect_ratio:.2f})，使用优化模式")
 
@@ -206,26 +205,26 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
 
             # 提取文本（使用"blocks"模式保留布局信息）
             blocks = page.get_text("blocks")
-            
+
             page_has_content = False
-            
+
             # 按位置排序blocks（从上到下，从左到右）
             blocks.sort(key=lambda b: (b[1], b[0]))  # (y0, x0)
-            
+
             for block in blocks:
                 # block格式: (x0, y0, x1, y1, "text", block_no, block_type)
                 if len(block) >= 5:
                     text = block[4].strip()
-                    
+
                     if text and len(text) > 1:
                         page_has_content = True
-                        
+
                         # PPT风格处理：识别标题
                         if is_ppt_like:
                             # 靠近页面顶部的文本可能是标题
                             y_pos = block[1]
                             page_height = page_rect.height
-                            
+
                             if y_pos < page_height * 0.25:  # 上部25%
                                 p = doc.add_paragraph(text)
                                 p.runs[0].bold = True
@@ -240,8 +239,10 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
                                     if line and len(line) > 1:
                                         p = doc.add_paragraph(line)
                                         # 列表项检测
-                                        if line.startswith(("•", "-", "*", "·")) or (len(line) > 0 and line[0].isdigit() and "." in line[:3]):
-                                            p.style = 'List Bullet'
+                                        if line.startswith(("•", "-", "*", "·")) or (
+                                            len(line) > 0 and line[0].isdigit() and "." in line[:3]
+                                        ):
+                                            p.style = "List Bullet"
                                         total_paragraphs += 1
                         else:
                             # 普通PDF处理
@@ -251,18 +252,20 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
                                 p.runs[0].bold = True
                                 p.runs[0].font.size = Pt(14)
                             total_paragraphs += 1
-            
+
             # 如果页面没有文本，尝试提取图片信息
             if not page_has_content:
                 image_list = page.get_images()
                 if image_list:
-                    doc.add_paragraph(f"[第 {page_num + 1} 页包含 {len(image_list)} 张图片，无文本]")
+                    doc.add_paragraph(
+                        f"[第 {page_num + 1} 页包含 {len(image_list)} 张图片，无文本]"
+                    )
                     total_images += len(image_list)
                     total_paragraphs += 1
                 else:
                     doc.add_paragraph(f"[第 {page_num + 1} 页无内容]")
                     total_paragraphs += 1
-            
+
             # 添加页面分隔符（PPT风格每页都分隔）
             if is_ppt_like:
                 doc.add_paragraph("")
@@ -270,11 +273,12 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
                 doc.add_paragraph("")
             elif page_num % 3 == 0 and page_num < total_pages - 1:
                 doc.add_paragraph("_" * 50)
-            
+
             # 大文件内存管理
             if file_size_mb > 20 and page_num % 50 == 0 and page_num > 0:
                 print(f"[INFO] 释放内存（已处理 {page_num} 页）")
                 import gc
+
                 gc.collect()
 
         pdf_document.close()
@@ -320,17 +324,17 @@ def main():
 
     # 根据文件大小选择最佳转换策略
     success = False
-    
+
     # 大文件（>20MB）或可能是PPT来源的PDF，优先使用 PyMuPDF
     if file_size_mb > 20:
         print("[INFO] 检测到大文件，优先使用 PyMuPDF（性能更好）")
         print("[INFO] 尝试方法1: PyMuPDF (优化大文件)")
         success = pdf_to_doc_fitz(args.input, args.output)
-        
+
         if not success:
             print("[INFO] 尝试方法2: pdfminer (流式处理)")
             success = pdf_to_doc_pdfminer(args.input, args.output)
-        
+
         if not success:
             print("[INFO] 尝试方法3: pdfplumber")
             success = pdf_to_doc_pdfplumber(args.input, args.output)
