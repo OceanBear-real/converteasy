@@ -13,10 +13,10 @@ global.wx = {
 
   getAccountInfoSync: jest.fn(() => ({
     miniProgram: {
-      envVersion: 'develop' 
+      envVersion: 'develop'
     }
   }))
-  
+
 };
 
 // Mock getApp

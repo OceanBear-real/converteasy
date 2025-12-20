@@ -31,7 +31,7 @@ function normalizeFileUrl(url) {
   let u = url;
   try {
     if (typeof u !== 'string') u = String(u);
-    
+
     // 1. 替换下载路径
     if (u.includes('/download/')) {
       u = u.replace('/download/', '/public/');

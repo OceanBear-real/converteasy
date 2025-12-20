@@ -5,7 +5,6 @@
 import asyncio
 import os
 import shutil
-import sys
 from pathlib import Path
 
 from app.config import PYTHON_CONVERSIONS, settings
@@ -55,9 +54,7 @@ async def run_ffmpeg(input_path: str, output_path: str, target_format: str) -> N
         cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
     )
 
-    stdout, stderr = await asyncio.wait_for(
-        proc.communicate(), timeout=settings.CONVERSION_TIMEOUT
-    )
+    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
 
     if stdout:
         print(f"FFmpeg output: {safe_decode(stdout)}")
@@ -108,9 +105,7 @@ async def run_soffice(input_path: str, output_dir: str, target_format: str) -> s
         env={**os.environ, "HOME": "/tmp"},
     )
 
-    stdout, stderr = await asyncio.wait_for(
-        proc.communicate(), timeout=settings.CONVERSION_TIMEOUT
-    )
+    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
 
     if stdout:
         print(f"LibreOffice output: {safe_decode(stdout)}")
@@ -131,9 +126,7 @@ async def run_soffice(input_path: str, output_dir: str, target_format: str) -> s
     return str(latest_file)
 
 
-async def run_python_conversion(
-    input_path: str, output_path: str, conversion_key: str
-) -> None:
+async def run_python_conversion(input_path: str, output_path: str, conversion_key: str) -> None:
     """运行 Python 脚本进行转换"""
     if conversion_key not in PYTHON_CONVERSIONS:
         raise Exception(f"不支持的转换类型: {conversion_key}")
@@ -157,9 +150,7 @@ async def run_python_conversion(
         env={**os.environ, "PYTHONPATH": str(script_path.parent)},
     )
 
-    stdout, stderr = await asyncio.wait_for(
-        proc.communicate(), timeout=settings.CONVERSION_TIMEOUT
-    )
+    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
 
     if stdout:
         print(f"Python output: {safe_decode(stdout)}")

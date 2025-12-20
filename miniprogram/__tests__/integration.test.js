@@ -27,7 +27,7 @@ global.wx = {
     miniProgram: {
       envVersion: 'develop' // 模拟开发环境，允许 localhost
     }
-  })),
+  }))
 
 };
 
