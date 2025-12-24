@@ -5,18 +5,19 @@ import traceback
 import time
 import markdown
 
+
 def convert_md_to_html(input_file, output_file):
     """Converts a Markdown file to an HTML file."""
     try:
         print(f"[INFO] 开始转换: {input_file} -> {output_file}")
         start_time = time.time()
 
-        with open(input_file, 'r', encoding='utf-8') as f:
+        with open(input_file, "r", encoding="utf-8") as f:
             text = f.read()
-        
+
         html = markdown.markdown(text)
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
+
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         elapsed = time.time() - start_time
@@ -27,6 +28,7 @@ def convert_md_to_html(input_file, output_file):
         print(f"[ERROR] 转换失败: {str(e)}", file=sys.stderr)
         traceback.print_exc()
         return False
+
 
 def main():
     parser = argparse.ArgumentParser(description="Markdown 转 HTML")
@@ -54,6 +56,7 @@ def main():
     else:
         print("[ERROR] 转换方法失败", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

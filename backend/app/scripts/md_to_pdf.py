@@ -5,6 +5,7 @@ import traceback
 import time
 from md2pdf.core import md2pdf
 
+
 def convert_md_to_pdf(input_file, output_file):
     """Converts a Markdown file to a PDF file using md2pdf."""
     try:
@@ -21,6 +22,7 @@ def convert_md_to_pdf(input_file, output_file):
         print(f"[ERROR] md2pdf 转换失败: {str(e)}", file=sys.stderr)
         traceback.print_exc()
         return False
+
 
 def main():
     parser = argparse.ArgumentParser(description="Markdown 转 PDF")
@@ -48,6 +50,7 @@ def main():
     else:
         print("[ERROR] 转换方法失败", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
