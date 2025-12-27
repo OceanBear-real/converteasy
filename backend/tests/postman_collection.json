@@ -729,6 +729,168 @@
 				}
 			],
 			"description": "错误处理和边界情况测试"
+		},
+		{
+			"name": "图片转换",
+			"item": [
+				{
+					"name": "Detect Targets (Image)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Category is image', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.category).to.eql('image');",
+									"});",
+									"",
+									"pm.test('Supported targets include png/pdf', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.supportedTargets).to.include('png');",
+									"    pm.expect(jsonData.supportedTargets).to.include('pdf');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "{{projectRoot}}/tests/samples/sample.jpg"
+								},
+								{
+									"key": "category",
+									"value": "image",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/detect-targets",
+							"host": ["{{baseUrl}}"],
+							"path": ["detect-targets"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Convert Image to Image (JPG->PNG)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Task ID returned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('taskId');",
+									"    pm.collectionVariables.set('taskId', jsonData.taskId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "{{projectRoot}}/tests/samples/sample.jpg"
+								},
+								{
+									"key": "category",
+									"value": "image",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "png",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Convert Image to PDF (PNG->PDF)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Task ID returned', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('taskId');",
+									"    pm.collectionVariables.set('taskId', jsonData.taskId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "{{projectRoot}}/tests/samples/sample.png"
+								},
+								{
+									"key": "category",
+									"value": "image",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "图片格式转换测试"
 		}
 	]
 }

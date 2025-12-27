@@ -13,6 +13,7 @@ class Category(str, Enum):
 
     DOCUMENT = "document"
     AUDIO = "audio"
+    IMAGE = "image"
 
 
 class TaskState(str, Enum):

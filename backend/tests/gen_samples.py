@@ -112,6 +112,30 @@ def make_pdf():
     print(f"✓ Generated {pdf_path}")
 
 
+def make_images():
+    """Generate sample JPG and PNG images using Pillow"""
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError:
+        print("Pillow not installed; skip Images")
+        return
+
+    # Create a simple image
+    img = Image.new('RGB', (100, 100), color='red')
+    d = ImageDraw.Draw(img)
+    d.text((10, 10), "Test", fill=(255, 255, 0))
+
+    # Save as JPG
+    jpg_path = SAMPLES_DIR / "sample.jpg"
+    img.save(jpg_path)
+    print(f"✓ Generated {jpg_path}")
+
+    # Save as PNG
+    png_path = SAMPLES_DIR / "sample.png"
+    img.save(png_path)
+    print(f"✓ Generated {png_path}")
+
+
 def main():
     make_txt()
     make_html()
@@ -120,6 +144,7 @@ def main():
     make_wav()
     make_mp3()
     make_pdf()
+    make_images()
     print(f"\nSamples written to: {SAMPLES_DIR}")
 
 

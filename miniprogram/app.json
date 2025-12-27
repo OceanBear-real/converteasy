@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/document/document",
-    "pages/audio/audio"
+    "pages/audio/audio",
+    "pages/image/image"
   ],
   "window": {
     "navigationBarTitleText": "ConvertEase - 专业文档转换",

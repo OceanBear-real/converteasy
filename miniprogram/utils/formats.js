@@ -154,6 +154,68 @@ const AUDIO_ALLOWED_EXTENSIONS = {
   'wma': ['.wma']
 };
 
+// ==================== 图片格式配置 ====================
+
+/**
+ * 图片源格式列表
+ */
+const IMAGE_SOURCE_FORMATS = ['jpg', 'png', 'webp', 'bmp', 'pdf'];
+
+/**
+ * 图片源格式显示名称
+ */
+const IMAGE_SOURCE_FORMAT_DISPLAY = [
+  'JPG/JPEG',
+  'PNG',
+  'WebP',
+  'BMP',
+  'PDF'
+];
+
+/**
+ * 图片目标格式列表
+ */
+const IMAGE_TARGET_FORMATS = ['jpg', 'png', 'webp', 'bmp', 'pdf', 'tiff'];
+
+/**
+ * 图片格式显示名称映射
+ */
+const IMAGE_FORMAT_DISPLAY_NAMES = {
+  'jpg': 'JPG',
+  'jpeg': 'JPG',
+  'png': 'PNG',
+  'webp': 'WebP',
+  'bmp': 'BMP',
+  'pdf': 'PDF',
+  'tiff': 'TIFF'
+};
+
+/**
+ * 图片默认转换映射
+ */
+const IMAGE_CONVERSION_MAP = {
+  'jpg': ['png', 'webp', 'bmp', 'pdf', 'tiff'],
+  'jpeg': ['png', 'webp', 'bmp', 'pdf', 'tiff'],
+  'png': ['jpg', 'webp', 'bmp', 'pdf', 'tiff'],
+  'webp': ['jpg', 'png', 'bmp', 'pdf', 'tiff'],
+  'bmp': ['jpg', 'png', 'webp', 'pdf', 'tiff'],
+  'tiff': ['jpg', 'png', 'webp', 'bmp', 'pdf'],
+  'pdf': ['jpg', 'png', 'webp', 'bmp', 'tiff']
+};
+
+/**
+ * 图片格式扩展名映射（带点）
+ */
+const IMAGE_ALLOWED_EXTENSIONS = {
+  'jpg': ['.jpg', '.jpeg'],
+  'jpeg': ['.jpg', '.jpeg'],
+  'png': ['.png'],
+  'webp': ['.webp'],
+  'bmp': ['.bmp'],
+  'pdf': ['.pdf'],
+  'tiff': ['.tiff', '.tif']
+};
+
 // ==================== 通用工具函数 ====================
 
 /**
@@ -167,6 +229,8 @@ function getAllowedExtensions(category, sourceFormat) {
     return DOCUMENT_ALLOWED_EXTENSIONS[sourceFormat] || [];
   } else if (category === 'audio') {
     return AUDIO_ALLOWED_EXTENSIONS[sourceFormat] || [];
+  } else if (category === 'image') {
+    return IMAGE_ALLOWED_EXTENSIONS[sourceFormat] || [];
   }
   return [];
 }
@@ -191,6 +255,8 @@ function getFormatDisplayName(category, format) {
     return DOCUMENT_FORMAT_DISPLAY_NAMES[format] || format.toUpperCase();
   } else if (category === 'audio') {
     return AUDIO_FORMAT_DISPLAY_NAMES[format] || format.toUpperCase();
+  } else if (category === 'image') {
+    return IMAGE_FORMAT_DISPLAY_NAMES[format] || format.toUpperCase();
   }
   return format.toUpperCase();
 }
@@ -213,13 +279,19 @@ module.exports = {
   DOCUMENT_FORMAT_DISPLAY_NAMES,
   DOCUMENT_CONVERSION_MAP,
   DOCUMENT_ALLOWED_EXTENSIONS,
-  DOCUMENT_ICONS,
-
   // 音频格式
   AUDIO_SOURCE_FORMATS,
   AUDIO_FORMAT_DISPLAY_NAMES,
   AUDIO_CONVERSION_MAP,
   AUDIO_ALLOWED_EXTENSIONS,
+
+  // 图片格式
+  IMAGE_SOURCE_FORMATS,
+  IMAGE_SOURCE_FORMAT_DISPLAY,
+  IMAGE_TARGET_FORMATS,
+  IMAGE_FORMAT_DISPLAY_NAMES,
+  IMAGE_CONVERSION_MAP,
+  IMAGE_ALLOWED_EXTENSIONS,
 
   // 工具函数
   getAllowedExtensions,

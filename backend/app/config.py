@@ -41,6 +41,7 @@ class Settings(BaseSettings):
         ".md",
     ]
     ALLOWED_AUDIO_EXT: List[str] = [".mp3", ".wav", ".aac", ".flac", ".m4a", ".ogg", ".wma"]
+    ALLOWED_IMAGE_EXT: List[str] = [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff", ".pdf"]
 
     # 外部工具路径
     FFMPEG_PATH: str = os.getenv("FFMPEG_PATH", "ffmpeg")
@@ -106,6 +107,15 @@ SUPPORTED_CONVERSIONS: Dict[str, Dict[str, List[str]]] = {
         "ogg": [".ogg", ".mp3", ".wav", ".flac"],
         "m4a": [".m4a", ".mp3", ".wav", ".aac"],
         "wma": [".mp3", ".wav", ".aac", ".flac", ".m4a", ".ogg", ".wma"],
+    },
+    "image": {
+        "jpg": [".png", ".webp", ".bmp", ".pdf", ".tiff"],
+        "jpeg": [".png", ".webp", ".bmp", ".pdf", ".tiff"],
+        "png": [".jpg", ".jpeg", ".webp", ".bmp", ".pdf", ".tiff"],
+        "webp": [".jpg", ".jpeg", ".png", ".bmp", ".pdf", ".tiff"],
+        "bmp": [".jpg", ".jpeg", ".png", ".webp", ".pdf", ".tiff"],
+        "tiff": [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".pdf"],
+        "pdf": [".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"],
     },
 }
 

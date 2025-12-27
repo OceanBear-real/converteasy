@@ -158,6 +158,21 @@ function createAudioConvertTask({ filePath, targetFormat }) {
 }
 
 /**
+ * 创建图片转换任务
+ * @param {object} params - 转换参数
+ * @param {string} params.filePath - 本地文件路径
+ * @param {string} params.targetFormat - 目标格式
+ * @returns {Promise<{taskId: string}>}
+ */
+function createImageConvertTask({ filePath, targetFormat }) {
+  const url = `${getBaseUrl()}/convert/upload`;
+  return httpUploadFile(url, filePath, {
+    category: 'image',
+    target: targetFormat
+  });
+}
+
+/**
  * 查询转换任务状态
  * @param {string} taskId - 任务 ID
  * @returns {Promise<{state: string, url?: string, message?: string}>}
@@ -237,6 +252,7 @@ module.exports = {
   httpUploadFile,
   createDocumentConvertTask,
   createAudioConvertTask,
+  createImageConvertTask,
   queryTask,
   pollTaskUntilComplete,
   loadSupportedFormats,

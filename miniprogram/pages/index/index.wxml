@@ -12,25 +12,4 @@
       <view class="category-desc">{{item.description}}</view>
     </view>
   </view>
-
-  <view class="format-section">
-    <view class="section-title">支持格式</view>
-    <view class="format-tags">
-      <view class="format-tag">PDF</view>
-      <view class="format-tag">DOC/DOCX</view>
-      <view class="format-tag">XLS/XLSX</view>
-      <view class="format-tag">PPT/PPTX</view>
-      <view class="format-tag">TXT</view>
-      <view class="format-tag">MP3</view>
-      <view class="format-tag">WAV</view>
-      <view class="format-tag">AAC</view>
-      <view class="format-tag">FLAC</view>
-      <view class="format-tag">JPG/PNG</view>
-      <view class="format-tag">WebP</view>
-      <view class="format-tag">MP4</view>
-      <view class="format-tag">AVI</view>
-      <view class="format-tag">MOV</view>
-      <view class="format-tag">等更多格式</view>
-    </view>
-  </view>
 </view>

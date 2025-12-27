@@ -19,6 +19,13 @@ Page({
         icon: '🎵',
         description: 'MP3、WAV、AAC、FLAC等格式互转',
         url: '/pages/audio/audio'
+      },
+      {
+        id: 'image',
+        name: '图片转换',
+        icon: '🖼️',
+        description: 'JPG、PNG、WebP、PDF等格式互转',
+        url: '/pages/image/image'
       }
     ]
   },

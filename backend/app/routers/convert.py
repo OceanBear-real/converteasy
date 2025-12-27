@@ -33,7 +33,7 @@ from app.utils.file_utils import (
     build_download_url,
     build_preview_url,
 )
-from app.utils.converter import run_ffmpeg, run_document_conversion
+from app.utils.converter import run_ffmpeg, run_document_conversion, run_image_conversion
 
 
 router = APIRouter()
@@ -46,7 +46,7 @@ convert_semaphore = asyncio.Semaphore(settings.MAX_CONCURRENT)
 @general_router.get("/supported-formats")
 async def get_supported_formats(category: Optional[str] = None):
     """获取支持的格式"""
-    if category and category not in ["document", "audio"]:
+    if category and category not in ["document", "audio", "image"]:
         raise HTTPException(status_code=400, detail="不支持的分类")
 
     response = {}
@@ -63,13 +63,19 @@ async def get_supported_formats(category: Optional[str] = None):
             "supportedConversions": SUPPORTED_CONVERSIONS["audio"],
         }
 
+    if not category or category == "image":
+        response["image"] = {
+            "allowedExtensions": settings.ALLOWED_IMAGE_EXT,
+            "supportedConversions": SUPPORTED_CONVERSIONS["image"],
+        }
+
     return response
 
 
 @general_router.post("/detect-targets")
 async def detect_targets(file: UploadFile = File(...), category: str = Form(...)):
     """检测文件支持的转换目标格式"""
-    if category not in ["document", "audio"]:
+    if category not in ["document", "audio", "image"]:
         raise HTTPException(status_code=400, detail="不支持的分类")
 
     source_ext = detect_ext_by_name(file.filename or "")
@@ -138,7 +144,7 @@ async def upload_and_convert(
         raise HTTPException(status_code=400, detail="缺少文件")
 
     # 验证分类和文件类型
-    if category not in ["document", "audio"]:
+    if category not in ["document", "audio", "image"]:
         if input_path and input_path.exists():
             input_path.unlink()
         raise HTTPException(status_code=400, detail="不支持的分类")
@@ -239,6 +245,10 @@ async def convert_async(task: ConvertTask) -> None:
                 # 音频转换
                 print(f"🎵 开始音频转换: {task.input_path} -> {output_path}")
                 await run_ffmpeg(task.input_path, str(output_path), task.target)
+            elif task.category == Category.IMAGE:
+                # 图片转换
+                print(f"🖼️ 开始图片转换: {task.input_path} -> {output_path}")
+                await run_image_conversion(task.input_path, str(output_path), task.target)
             else:
                 # 文档转换
                 source_ext = detect_ext_by_name(task.input_path)
