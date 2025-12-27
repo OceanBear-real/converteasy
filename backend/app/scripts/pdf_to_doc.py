@@ -4,10 +4,49 @@ import sys
 import os
 import traceback
 import time
+import subprocess
 from pdfminer.high_level import extract_text, extract_pages
 from pdfminer.layout import LTTextContainer
 from docx import Document
 from docx.shared import Pt
+
+
+def save_document(doc, doc_path):
+    """保存文档，如果目标是 .doc，则先保存为 .docx 再转换"""
+    if doc_path.lower().endswith('.doc'):
+        temp_docx = doc_path + "x"
+        doc.save(temp_docx)
+        print(f"[INFO] 已保存临时文件: {temp_docx}")
+        
+        try:
+            print(f"[INFO] 正在调用 LibreOffice 将 DOCX 转换为 DOC...")
+            out_dir = os.path.dirname(os.path.abspath(doc_path))
+            
+            cmd = [
+                "soffice",
+                "--headless",
+                "--convert-to", "doc",
+                "--outdir", out_dir,
+                temp_docx
+            ]
+            
+            subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            if os.path.exists(temp_docx):
+                os.remove(temp_docx)
+                
+            if not os.path.exists(doc_path):
+                print(f"[WARNING] LibreOffice 转换看似成功但未找到输出文件: {doc_path}")
+                
+        except Exception as e:
+            print(f"[ERROR] LibreOffice 转换失败: {e}")
+            print("[INFO] 回退方案: 直接重命名 .docx 为 .doc")
+            if os.path.exists(temp_docx):
+                if os.path.exists(doc_path):
+                    os.remove(doc_path)
+                os.rename(temp_docx, doc_path)
+    else:
+        doc.save(doc_path)
 
 
 def pdf_to_doc_pdfminer(pdf_path, doc_path):
@@ -106,7 +145,7 @@ def pdf_to_doc_pdfminer(pdf_path, doc_path):
             print("[WARNING] 未提取到文本内容")
 
         # 保存文档
-        doc.save(doc_path)
+        save_document(doc, doc_path)
         elapsed = time.time() - start_time
         print(f"[SUCCESS] 转换成功: {pdf_path} -> {doc_path}")
         print(f"[INFO] 处理了 {total_pages} 页，提取了 {total_paragraphs} 个段落")
@@ -154,7 +193,7 @@ def pdf_to_doc_pdfplumber(pdf_path, doc_path):
         if total_paragraphs == 0:
             doc.add_paragraph("未能从 PDF 中提取到文本内容")
 
-        doc.save(doc_path)
+        save_document(doc, doc_path)
         print(f"[SUCCESS] pdfplumber 转换成功: {pdf_path} -> {doc_path}")
         print(f"[INFO] 处理了 {total_pages} 页，提取了 {total_paragraphs} 个段落")
         return True
@@ -286,7 +325,7 @@ def pdf_to_doc_fitz(pdf_path, doc_path):
         if total_paragraphs == 0:
             doc.add_paragraph("未能从 PDF 中提取到文本内容")
 
-        doc.save(doc_path)
+        save_document(doc, doc_path)
         elapsed = time.time() - start_time
         print(f"[SUCCESS] PyMuPDF 转换成功: {pdf_path} -> {doc_path}")
         print(f"[INFO] 处理了 {total_pages} 页，提取了 {total_paragraphs} 个段落")

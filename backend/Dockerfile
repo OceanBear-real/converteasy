@@ -70,7 +70,7 @@ FROM base AS runtime
 
 # 镜像元数据
 LABEL maintainer="ConvertEasy Team" \
-      version="2.1.0" \
+      version="2.1.1" \
       description="File conversion service with FastAPI"
 
 # 环境变量
