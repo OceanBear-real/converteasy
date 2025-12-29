@@ -1,5 +1,10 @@
-<view class="container">
-  <view class="title">📄 文档转换</view>
+<view class="container {{darkMode ? 'dark-mode' : ''}}">
+  <view class="title">
+    📄 文档转换
+    <view class="theme-toggle" bindtap="toggleTheme">
+      <view class="theme-icon">{{darkMode ? '🌙' : '☀️'}}</view>
+    </view>
+  </view>
 
   <view class="card">
     <view class="subtitle">选择源文件格式</view>

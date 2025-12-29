@@ -22,6 +22,14 @@ def check_dependencies():
         try:
             if package == "pymupdf":
                 import fitz  # noqa: F401
+            elif package == "pdfminer.six":
+                import pdfminer  # noqa: F401
+            elif package == "python-docx":
+                import docx  # noqa: F401
+            elif package == "python-pptx":
+                import pptx  # noqa: F401
+            elif package == "beautifulsoup4":
+                from bs4 import BeautifulSoup  # noqa: F401
             else:
                 __import__(package.replace("-", "_"))
             print(f"✓ {package:15} - 用于: {scripts}")

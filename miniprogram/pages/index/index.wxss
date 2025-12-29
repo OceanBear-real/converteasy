@@ -2,26 +2,54 @@
 .container {
   padding: 32rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f0f6ff 0%, #f7f8fa 100%);
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  transition: background 0.3s ease;
 }
 
 .header {
   text-align: center;
   margin-bottom: 60rpx;
   padding-top: 20rpx;
+  position: relative;
+}
+
+/* 夜间模式切换按钮 */
+.theme-toggle {
+  position: absolute;
+  top: 20rpx;
+  right: 0;
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: var(--card-bg);
+  box-shadow: 0 4rpx 16rpx var(--card-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: 2rpx solid var(--border-color);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+  background: var(--primary-light);
+}
+
+.theme-icon {
+  font-size: 36rpx;
 }
 
 .title {
   font-size: 48rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
   letter-spacing: 1rpx;
 }
 
 .subtitle {
   font-size: 28rpx;
-  color: #5e6c84;
+  color: var(--text-secondary);
 }
 
 .category-grid {
@@ -32,19 +60,19 @@
 }
 
 .category-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 24rpx;
   padding: 40rpx 32rpx;
   text-align: center;
-  box-shadow: 0 4rpx 20rpx rgba(0, 82, 217, 0.06);
+  box-shadow: 0 4rpx 20rpx var(--card-shadow);
   transition: all 0.3s ease;
-  border: 1rpx solid rgba(0, 82, 217, 0.05);
+  border: 1rpx solid var(--border-color);
 }
 
 .category-card:active {
   transform: scale(0.98);
-  background: #e6f0ff;
-  border-color: #0052d9;
+  background: var(--primary-light);
+  border-color: var(--primary-color);
 }
 
 .category-card:last-child {
@@ -62,13 +90,13 @@
 .category-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   margin-bottom: 12rpx;
   display: block;
 }
 
 .category-desc {
   font-size: 24rpx;
-  color: #8898aa;
+  color: var(--text-secondary);
   line-height: 1.4;
 }

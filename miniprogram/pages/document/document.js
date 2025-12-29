@@ -23,8 +23,13 @@ const {
   getTargetDisplayNames
 } = require('../../utils/formats');
 
+const app = getApp();
+
 Page({
   data: {
+    // 主题
+    darkMode: false,
+    
     // 源格式
     sourceFormats: DOCUMENT_SOURCE_FORMATS,
     sourceFormatDisplay: DOCUMENT_SOURCE_FORMAT_DISPLAY,
@@ -50,8 +55,46 @@ Page({
   },
 
   onLoad() {
+    // 初始化主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+    
     this.testConnection();
     this.loadFormats();
+  },
+
+  onShow() {
+    // 页面显示时同步主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+  },
+
+  // 切换主题
+  toggleTheme() {
+    const newMode = app.toggleDarkMode();
+    this.setData({
+      darkMode: newMode
+    });
+    this.applyTheme();
+  },
+
+  // 应用主题
+  applyTheme() {
+    if (this.data.darkMode) {
+      wx.setNavigationBarColor({
+        frontColor: '#ffffff',
+        backgroundColor: '#1a1a1a'
+      });
+    } else {
+      wx.setNavigationBarColor({
+        frontColor: '#000000',
+        backgroundColor: '#ffffff'
+      });
+    }
   },
 
   // 测试服务连接

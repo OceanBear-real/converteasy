@@ -2,16 +2,46 @@
 .container {
   padding: 32rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f0f6ff 0%, #f7f8fa 100%);
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  transition: background 0.3s ease;
 }
 
 .title {
   font-size: 40rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 40rpx;
   letter-spacing: 1rpx;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: absolute;
+  right: 0;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: var(--card-bg);
+  box-shadow: 0 4rpx 12rpx var(--card-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border: 2rpx solid var(--border-color);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+  background: var(--primary-light);
+}
+
+.theme-icon {
+  font-size: 32rpx;
 }
 
 .card {
@@ -26,8 +56,30 @@
 .subtitle {
   font-size: 32rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   margin-bottom: 24rpx;
+}
+
+.button-group {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.btn-select {
+  flex: 1;
+  font-size: 28rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: var(--card-bg);
+  border: 2rpx solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-album {
+  background: linear-gradient(135deg, #4A90E2 0%, #2563EB 100%);
+  color: white;
+  border: none;
 }
 
 .format-grid {
@@ -38,22 +90,23 @@
 }
 
 .format-item {
-  background: #ffffff;
-  border: 2rpx solid #e7e7e7;
+  background: var(--card-bg);
+  border: 2rpx solid var(--border-color);
   border-radius: 16rpx;
   padding: 28rpx 16rpx;
   text-align: center;
   transition: all 0.2s ease;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2rpx 8rpx var(--card-shadow);
+  color: var(--text-primary);
 }
 
 .format-item.selected {
-  background: #e6f0ff;
-  border-color: #0052d9;
-  color: #0052d9;
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
   font-weight: 600;
   transform: translateY(-2rpx);
-  box-shadow: 0 4rpx 12rpx rgba(0, 82, 217, 0.15);
+  box-shadow: 0 4rpx 12rpx var(--card-shadow);
 }
 
 .format-text {
@@ -62,20 +115,20 @@
 }
 
 .btn-primary {
-  background: #0052d9;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 40rpx;
   padding: 24rpx;
   font-size: 28rpx;
   width: 100%;
-  box-shadow: 0 4rpx 12rpx rgba(0, 82, 217, 0.2);
+  box-shadow: 0 4rpx 12rpx var(--card-shadow);
   transition: all 0.3s ease;
 }
 
 .btn-primary:active {
   transform: scale(0.98);
-  box-shadow: 0 2rpx 6rpx rgba(0, 82, 217, 0.2);
+  box-shadow: 0 2rpx 6rpx var(--card-shadow);
 }
 
 .btn-success {
@@ -99,7 +152,7 @@
   display: flex;
   align-items: center;
   padding: 24rpx;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 16rpx;
   margin-bottom: 16rpx;
 }
@@ -116,7 +169,7 @@
 
 .file-name {
   font-size: 28rpx;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
   white-space: nowrap;
   overflow: hidden;
@@ -125,15 +178,15 @@
 
 .file-size {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-muted);
   display: inline-block;
   margin-right: 16rpx;
 }
 
 .file-format {
   font-size: 20rpx;
-  color: #0052d9;
-  background: rgba(0, 82, 217, 0.1);
+  color: var(--primary-color);
+  background: var(--primary-light);
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
   display: inline-block;
@@ -150,8 +203,8 @@
   font-size: 22rpx;
   padding: 4rpx 12rpx;
   border-radius: 8rpx;
-  background: #eee;
-  color: #666;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .status-processing {

@@ -1,5 +1,10 @@
-<view class="container">
-  <view class="title">🖼️ 图片转换</view>
+<view class="container {{darkMode ? 'dark-mode' : ''}}">
+  <view class="title">
+    🖼️ 图片转换
+    <view class="theme-toggle" bindtap="toggleTheme">
+      <view class="theme-icon">{{darkMode ? '🌙' : '☀️'}}</view>
+    </view>
+  </view>
 
   <view class="card">
     <view class="subtitle">选择源文件格式</view>
@@ -28,7 +33,10 @@
 
   <view class="card">
     <view class="subtitle">选择文件</view>
-    <button type="default" bindtap="chooseFileAction" class="btn-primary">选择图片文件 (从微信聊天)</button>
+    <view class="button-group">
+      <button type="default" bindtap="chooseFileAction" class="btn-select">从微信聊天选择</button>
+      <button type="default" bindtap="chooseFromAlbum" class="btn-select btn-album">从相册选择</button>
+    </view>
 
     <view wx:if="{{fileList.length > 0}}" style="margin-top:24rpx">
       <view wx:for="{{fileList}}" wx:key="path" class="file-item">

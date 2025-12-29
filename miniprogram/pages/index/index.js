@@ -1,10 +1,13 @@
 // pages/index/index.js
+const app = getApp();
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
+    darkMode: false,
     categories: [
       {
         id: 'document',
@@ -34,7 +37,43 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(_options) {
+    // 加载夜间模式设置
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+  },
 
+  onShow() {
+    // 页面显示时同步主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+  },
+
+  // 切换主题
+  toggleTheme() {
+    const newMode = app.toggleDarkMode();
+    this.setData({
+      darkMode: newMode
+    });
+    this.applyTheme();
+  },
+
+  // 应用主题
+  applyTheme() {
+    if (this.data.darkMode) {
+      wx.setNavigationBarColor({
+        frontColor: '#ffffff',
+        backgroundColor: '#1a1a1a'
+      });
+    } else {
+      wx.setNavigationBarColor({
+        frontColor: '#000000',
+        backgroundColor: '#ffffff'
+      });
+    }
   },
 
   navigateToCategory(e) {

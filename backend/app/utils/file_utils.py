@@ -200,53 +200,84 @@ async def cleanup_orphaned_files(directory: str, max_age: int, dir_name: str) ->
 async def check_dependencies() -> None:
     """检查系统依赖"""
     import shutil
+    import sys
+    from pathlib import Path
 
     # 检查 LibreOffice
-    soffice_path = shutil.which(settings.SOFFICE_PATH) or settings.SOFFICE_PATH
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            soffice_path,
-            "--version",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, _ = await proc.communicate()
-        if proc.returncode == 0:
-            version = stdout.decode().split("\n")[0] if stdout else "unknown"
-            print(f"✓ LibreOffice 可用: {version}")
-        else:
-            print("⚠ LibreOffice 检查失败")
-    except Exception as e:
-        print(f"⚠ LibreOffice 不可用: {e}")
+    soffice_candidates = [
+        settings.SOFFICE_PATH,
+        shutil.which("soffice"),
+        shutil.which("soffice.exe"),
+        "C:\\Program Files\\LibreOffice\\program\\soffice.exe",
+    ]
+    soffice_path = None
+    for candidate in soffice_candidates:
+        if candidate and Path(str(candidate)).exists():
+            soffice_path = candidate
+            break
+    
+    if soffice_path:
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                str(soffice_path),
+                "--version",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=5.0)
+            if proc.returncode == 0 and stdout:
+                version = stdout.decode().strip().split("\n")[0]
+                print(f"✓ LibreOffice 可用: {version}")
+            else:
+                print(f"⚠ LibreOffice 未找到（文档转换功能不可用）")
+        except Exception as e:
+            print(f"⚠ LibreOffice 检查出错: {e}")
+    else:
+        print("⚠ LibreOffice 未找到（文档转换功能不可用）")
 
     # 检查 FFmpeg
-    ffmpeg_path = shutil.which(settings.FFMPEG_PATH) or settings.FFMPEG_PATH
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            ffmpeg_path, "-version", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        stdout, _ = await proc.communicate()
-        if proc.returncode == 0:
-            version = stdout.decode().split("\n")[0] if stdout else "unknown"
-            print(f"✓ FFmpeg 可用: {version}")
-        else:
-            print("⚠ FFmpeg 检查失败")
-    except Exception as e:
-        print(f"⚠ FFmpeg 不可用: {e}")
+    ffmpeg_candidates = [
+        settings.FFMPEG_PATH,
+        shutil.which("ffmpeg"),
+        shutil.which("ffmpeg.exe"),
+        "C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe",
+    ]
+    ffmpeg_path = None
+    for candidate in ffmpeg_candidates:
+        if candidate and Path(str(candidate)).exists():
+            ffmpeg_path = candidate
+            break
+            
+    if ffmpeg_path:
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                str(ffmpeg_path), "-version", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=5.0)
+            if proc.returncode == 0 and stdout:
+                version = stdout.decode().split("\n")[0]
+                print(f"✓ FFmpeg 可用: {version}")
+            else:
+                print("⚠ FFmpeg 未找到（音频转换功能不可用）")
+        except Exception as e:
+            print(f"⚠ FFmpeg 检查出错: {e}")
+    else:
+        print("⚠ FFmpeg 未找到（音频转换功能不可用）")
 
-    # 检查 Python 依赖
+    # 检查图片转换依赖（必需）
     try:
-        proc = await asyncio.create_subprocess_exec(
-            settings.PYTHON_PATH,
-            "-c",
-            "import pdf2docx, pdfplumber, docx, openpyxl, pandas",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        _, stderr = await proc.communicate()
-        if proc.returncode == 0:
-            print("✓ Python 转换依赖可用")
-        else:
-            print(f"⚠ 部分 Python 依赖缺失: {stderr.decode()[:100]}")
-    except Exception as e:
-        print(f"⚠ Python 环境检查失败: {e}")
+        import PIL
+        import fitz
+        print("✓ 图片转换依赖可用: Pillow, PyMuPDF")
+    except ImportError as e:
+        print(f"✗ 图片转换依赖缺失: {e}")
+
+    # 检查 Python 文档转换依赖（可选）
+    try:
+        import pdfplumber
+        import docx
+        import openpyxl
+        import pandas
+        print("✓ Python 文档转换依赖可用")
+    except ImportError as e:
+        print(f"⚠ 部分 Python 依赖缺失: {e}")

@@ -25,8 +25,13 @@ const formatTime = (seconds) => {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 };
 
+const app = getApp();
+
 Page({
   data: {
+    // 主题
+    darkMode: false,
+    
     sourceFormats: AUDIO_SOURCE_FORMATS,
     sourceIndex: -1,
     targetFormats: AUDIO_SOURCE_FORMATS,
@@ -52,7 +57,45 @@ Page({
   },
 
   onLoad() {
+    // 初始化主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+    
     this.loadSupportedFormats();
+  },
+
+  onShow() {
+    // 页面显示时同步主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+  },
+
+  // 切换主题
+  toggleTheme() {
+    const newMode = app.toggleDarkMode();
+    this.setData({
+      darkMode: newMode
+    });
+    this.applyTheme();
+  },
+
+  // 应用主题
+  applyTheme() {
+    if (this.data.darkMode) {
+      wx.setNavigationBarColor({
+        frontColor: '#ffffff',
+        backgroundColor: '#1a1a1a'
+      });
+    } else {
+      wx.setNavigationBarColor({
+        frontColor: '#000000',
+        backgroundColor: '#ffffff'
+      });
+    }
   },
 
   onUnload() {
