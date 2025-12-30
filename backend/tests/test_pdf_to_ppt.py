@@ -4,14 +4,10 @@ PDF转PPT功能单元测试
 """
 
 import os
-import sys
 import pytest
 import zipfile
 from pathlib import Path
 from PIL import Image
-
-# 添加项目根目录到路径
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.scripts.pdf_to_ppt import (
     _check_poppler,

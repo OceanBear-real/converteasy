@@ -1,6 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-from pathlib import Path
+from unittest.mock import patch, AsyncMock
 from app.utils.file_utils import (
     format_file_size,
     detect_ext_by_name,

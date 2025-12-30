@@ -200,7 +200,6 @@ async def cleanup_orphaned_files(directory: str, max_age: int, dir_name: str) ->
 async def check_dependencies() -> None:
     """检查系统依赖"""
     import shutil
-    import sys
     from pathlib import Path
 
     # 检查 LibreOffice
@@ -229,7 +228,7 @@ async def check_dependencies() -> None:
                 version = stdout.decode().strip().split("\n")[0]
                 print(f"✓ LibreOffice 可用: {version}")
             else:
-                print(f"⚠ LibreOffice 未找到（文档转换功能不可用）")
+                print("⚠ LibreOffice 未找到（文档转换功能不可用）")
         except Exception as e:
             print(f"⚠ LibreOffice 检查出错: {e}")
     else:
@@ -269,8 +268,8 @@ async def check_dependencies() -> None:
 
     # 检查图片转换依赖（必需）
     try:
-        import PIL
-        import fitz
+        import PIL  # noqa: F401
+        import fitz  # noqa: F401
 
         print("✓ 图片转换依赖可用: Pillow, PyMuPDF")
     except ImportError as e:
@@ -278,10 +277,10 @@ async def check_dependencies() -> None:
 
     # 检查 Python 文档转换依赖（可选）
     try:
-        import pdfplumber
-        import docx
-        import openpyxl
-        import pandas
+        import pdfplumber  # noqa: F401
+        import docx  # noqa: F401
+        import openpyxl  # noqa: F401
+        import pandas  # noqa: F401
 
         print("✓ Python 文档转换依赖可用")
     except ImportError as e:
