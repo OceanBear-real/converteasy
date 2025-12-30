@@ -1,15 +1,62 @@
+/* ========== 夜间模式主题变量 ========== */
+page {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f8fa;
+  --bg-gradient-start: #f0f6ff;
+  --bg-gradient-end: #f7f8fa;
+  --text-primary: #00234b;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #e7e7e7;
+  --card-bg: #ffffff;
+  --card-shadow: rgba(0, 82, 217, 0.06);
+  --primary-color: #0052d9;
+  --primary-light: #e6f0ff;
+}
+
+/* 夜间模式变量覆盖 */
+page.dark-mode,
+.dark-mode {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #252525;
+  --bg-gradient-start: #1a1a1a;
+  --bg-gradient-end: #252525;
+  --text-primary: #e5e5e5;
+  --text-secondary: #b3b3b3;
+  --text-muted: #808080;
+  --border-color: #404040;
+  --card-bg: #2a2a2a;
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --primary-color: #4a90e2;
+  --primary-light: #1e3a5f;
+}
+
+/* 夜间模式特殊样式 */
+.dark-mode .card {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.dark-mode .format-item,
+.dark-mode .category-card,
+.dark-mode .file-item {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
 /* 容器样式 */
 .container {
   padding: 32rpx;
   min-height: 100vh;
-  background: linear-gradient(180deg, #f0f6ff 0%, #f7f8fa 100%);
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   box-sizing: border-box;
 }
 
 .title {
   font-size: 40rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 40rpx;
   letter-spacing: 1rpx;
@@ -17,18 +64,18 @@
 
 /* 通用卡片样式 */
 .card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 24rpx;
   padding: 40rpx;
   margin-bottom: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 82, 217, 0.06);
-  border: 1rpx solid rgba(0, 82, 217, 0.05);
+  box-shadow: 0 4rpx 20rpx var(--card-shadow);
+  border: 1rpx solid var(--border-color);
 }
 
 .subtitle {
   font-size: 32rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   margin-bottom: 24rpx;
 }
 
@@ -41,21 +88,22 @@
 }
 
 .format-item {
-  background: #ffffff;
-  border: 2rpx solid #e7e7e7;
+  background: var(--card-bg);
+  border: 2rpx solid var(--border-color);
   border-radius: 16rpx;
   padding: 24rpx 12rpx;
   text-align: center;
   transition: all 0.2s ease;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2rpx 8rpx var(--card-shadow);
+  color: var(--text-primary);
 }
 
 .format-item.selected {
-  background: #e6f0ff;
-  border-color: #0052d9;
-  color: #0052d9;
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
   font-weight: 600;
-  box-shadow: 0 4rpx 12rpx rgba(0, 82, 217, 0.15);
+  box-shadow: 0 4rpx 12rpx var(--card-shadow);
 }
 
 .format-text {
@@ -68,13 +116,13 @@
   display: flex;
   align-items: center;
   padding: 24rpx;
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 16rpx;
   margin-bottom: 16rpx;
-  border: 1rpx solid rgba(0, 82, 217, 0.05);
+  border: 1rpx solid var(--border-color);
   /* 关键：确保内容溢出时布局稳定 */
   justify-content: space-between;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2rpx 8rpx var(--card-shadow);
 }
 
 .file-info {
@@ -87,7 +135,7 @@
 .file-name {
   font-size: 28rpx;
   font-weight: 600;
-  color: #00234b;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
   /* 关键：单行截断 */
   white-space: nowrap;

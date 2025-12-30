@@ -23,8 +23,13 @@ const {
   getTargetDisplayNames
 } = require('../../utils/formats');
 
+const app = getApp();
+
 Page({
   data: {
+    // 主题
+    darkMode: false,
+
     // 源格式
     sourceFormats: IMAGE_SOURCE_FORMATS,
     sourceFormatDisplay: IMAGE_SOURCE_FORMAT_DISPLAY,
@@ -50,8 +55,46 @@ Page({
   },
 
   onLoad() {
+    // 初始化主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+
     this.testConnection();
     this.loadFormats();
+  },
+
+  onShow() {
+    // 页面显示时同步主题
+    this.setData({
+      darkMode: app.globalData.darkMode
+    });
+    this.applyTheme();
+  },
+
+  // 切换主题
+  toggleTheme() {
+    const newMode = app.toggleDarkMode();
+    this.setData({
+      darkMode: newMode
+    });
+    this.applyTheme();
+  },
+
+  // 应用主题
+  applyTheme() {
+    if (this.data.darkMode) {
+      wx.setNavigationBarColor({
+        frontColor: '#ffffff',
+        backgroundColor: '#1a1a1a'
+      });
+    } else {
+      wx.setNavigationBarColor({
+        frontColor: '#000000',
+        backgroundColor: '#ffffff'
+      });
+    }
   },
 
   // 测试服务连接
@@ -138,6 +181,92 @@ Page({
       if (err.errMsg && !err.errMsg.includes('cancel')) {
         showToast('文件选择失败', 'none');
       }
+    }
+  },
+
+  // 从相册选择图片
+  chooseFromAlbum() {
+    if (this.data.sourceIndex === -1) {
+      showToast('请先选择源文件格式', 'none');
+      return;
+    }
+
+    const that = this;
+
+    wx.chooseImage({
+      count: 9,  // 最多选择9张
+      sizeType: ['original', 'compressed'],
+      sourceType: ['album', 'camera'],  // 相册和拍照
+      success(res) {
+        console.log('选择的图片:', res.tempFiles);
+        that._processAlbumFiles(res.tempFiles);
+      },
+      fail(err) {
+        if (err.errMsg && !err.errMsg.includes('cancel')) {
+          showToast('选择图片失败', 'none');
+        }
+      }
+    });
+  },
+
+  // 处理相册选择的文件
+  _processAlbumFiles(tempFiles) {
+    const newFiles = [];
+    let skipped = 0;
+    const sourceFormat = this.data.sourceFormats[this.data.sourceIndex];
+    const allowedExt = this._getAllowedExtensions(sourceFormat);
+
+    for (const file of tempFiles) {
+      // 相册图片可能没有扩展名，需要根据 type 判断
+      let extWithDot = getExt(file.path);
+
+      // 如果没有扩展名，尝试从文件类型推断
+      if (!extWithDot && file.type) {
+        const typeMap = {
+          'image/jpeg': '.jpg',
+          'image/png': '.png',
+          'image/webp': '.webp',
+          'image/gif': '.gif',
+          'image/bmp': '.bmp'
+        };
+        extWithDot = typeMap[file.type] || '.jpg';
+      }
+
+      // 如果还是没有扩展名，根据选择的源格式来设置
+      if (!extWithDot || extWithDot === '.') {
+        extWithDot = sourceFormat.startsWith('.') ? sourceFormat : '.' + sourceFormat;
+      }
+
+      // 验证格式
+      if (!allowedExt.includes(extWithDot)) {
+        skipped++;
+        continue;
+      }
+
+      // 生成文件名
+      let fileName = file.path.split('/').pop() || '';
+      if (!fileName || !getExt(fileName)) {
+        fileName = `image_${Date.now()}_${Math.random().toString(36).substr(2, 9)}${extWithDot}`;
+      }
+
+      newFiles.push({
+        path: file.path,
+        name: fileName,
+        size: formatSize(file.size),
+        status: 'pending',
+        taskId: undefined,
+        downloadUrl: undefined,
+        sourceFormat: sourceFormat,
+        fileExt: extWithDot
+      });
+    }
+
+    this.setData({ fileList: [...this.data.fileList, ...newFiles] });
+
+    if (skipped > 0) {
+      showToast(`已跳过 ${skipped} 个格式不匹配的文件`, 'none', 3000);
+    } else if (newFiles.length > 0) {
+      showToast(`已添加 ${newFiles.length} 张图片`, 'success');
     }
   },
 
